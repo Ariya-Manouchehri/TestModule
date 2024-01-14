@@ -37,15 +37,20 @@ public class UserService {
 
     public void deleteUser(Long id) {
         Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()){
+        if (user.isEmpty()) {
             throw new UserException("userNotFound");
-        }else {
-        userRepository.deleteById(id);
+        } else {
+            userRepository.deleteById(id);
         }
     }
 
     public User findUser(Long id) {
-        return userRepository.findById(id).get();
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
+            throw new UserException("UserNotFound");
+        } else {
+            return user.get();
+        }
     }
 
     public List<User> findAllUsers() {

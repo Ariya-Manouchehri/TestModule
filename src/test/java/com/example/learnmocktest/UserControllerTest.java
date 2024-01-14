@@ -101,4 +101,24 @@ public class UserControllerTest {
         mockMvc.perform(delete("/test/deleteUser/{userId}", 5L))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void findUserResponse200() throws Exception {
+        Mockito.when(userService.findUser(1L)).thenReturn(output);
+
+        mockMvc.perform(get("/test/findUser")
+                .param("userId", String.valueOf(output.getId())) // Pass userId as a request parameter
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void findUserResponse500() throws Exception {
+        Mockito.when(userService.findUser(1L)).thenThrow(UserException.class);
+
+        mockMvc.perform(get("/test/findUser")
+                        .param("userId", String.valueOf(output.getId())) // Pass userId as a request parameter
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }
