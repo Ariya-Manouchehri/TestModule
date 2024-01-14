@@ -22,7 +22,7 @@ public class UserController {
     }
 
     @PutMapping("/updateUser/{userId}")
-    public User updateUser(@RequestBody User user, @RequestParam Long userId) {
+    public User updateUser(@RequestBody User user, @PathVariable Long userId) {
         return userService.updateUser(user, userId);
     }
 
@@ -31,7 +31,7 @@ public class UserController {
         userService.deleteUser(userId);
     }
 
-    @GetMapping("/findUser/{UserId}")
+    @GetMapping("/findUser")
     public User findUser(@RequestParam Long userId) {
         return userService.findUser(userId);
     }

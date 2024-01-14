@@ -15,7 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
@@ -35,7 +36,7 @@ public class UserControllerTest {
     private User output;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         input = new User(1L, "ariya", "manouchehri", 21);
         output = new User(1L, "ariya", "manouchehri", 21);
     }
@@ -58,6 +59,46 @@ public class UserControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void updateUserResponse200() throws Exception {
+        input.setName("sara");
+        output.setName("sara");
 
+        Mockito.when(userService.updateUser(input, input.getId())).thenReturn(output);
 
+        mockMvc.perform(put("/test/updateUser/{userId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(jsonPath("$.name").value("sara"))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void updateUserResponse500() throws Exception {
+        input.setName("sara");
+        output.setName("sara");
+
+        Mockito.when(userService.updateUser(any(), any())).thenThrow(UserException.class);
+
+        mockMvc.perform(put("/test/updateUser/{userId}", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(input)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void deleteUserResponse200() throws Exception {
+        Mockito.doNothing().when(userService).deleteUser(1L);
+        mockMvc.perform(delete("/test/deleteUser/{userId}", 1))
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void deleteUserResponse500() throws Exception {
+        //Mockito.doThrow(UserException.class).when(userService).findUser(1L);
+        Mockito.doThrow(UserException.class).when(userService).deleteUser(5L);
+
+        mockMvc.perform(delete("/test/deleteUser/{userId}", 5L))
+                .andExpect(status().isNotFound());
+    }
 }
